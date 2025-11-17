@@ -61,11 +61,12 @@ python3 create_video.py /path/to/content_folder
 ## Content Folder Structure
 
 Your content folder should contain:
-- `audio_1.wav`, `audio_2.wav`, ... `audio_N.wav` - Audio files
+- `audio_1.wav`, `audio_2.wav`, ... `audio_N.wav` - Audio files (Mandarin)
+- `audio_1_es.wav`, `audio_2_es.wav`, ... `audio_N_es.wav` - Audio files (Spanish, optional)
 - `image_1.png`, `image_2.png`, ... `image_N.png` - Image files
 - Optional: `transcripts.txt` - For reference
 
-The scripts will automatically detect the number of segments by finding the highest numbered audio file.
+The scripts will automatically detect the number of segments by finding the highest numbered audio file. If Spanish audio files (with `_es` suffix) are present, the script will create separate videos for both languages.
 
 ## How It Works
 
@@ -77,18 +78,31 @@ The scripts follow a two-step FFmpeg workflow:
 
 ## Output
 
-The scripts create the following structure in your content folder:
+The scripts create the following structure:
 
+**In your content folder:**
 ```
 content_folder/
-├── audio_1.wav ... audio_N.wav    # Your input files
+├── audio_1.wav ... audio_N.wav    # Your input files (Mandarin)
+├── audio_1_es.wav ... audio_N_es.wav  # Your input files (Spanish, optional)
 ├── image_1.png ... image_N.png     # Your input files
-├── segments/                       # Created during execution
-│   ├── segment_1.mp4 ... segment_N.mp4
-│   └── concat_list.txt
-└── output/                         # Created during execution
-    └── final_video.mp4             # Final output
+└── segments/                       # Created during execution
+    ├── segment_1.mp4 ... segment_N.mp4
+    ├── segment_es_1.mp4 ... segment_es_N.mp4 (if Spanish audio exists)
+    ├── concat_list.txt
+    └── concat_list_es.txt (if Spanish audio exists)
 ```
+
+**On Desktop:**
+```
+~/Desktop/
+├── Mandarin CI/                    # Final MP4 files (Mandarin)
+│   └── YYYYMMDD_HHMMSS.mp4         # Timestamped output
+└── Spanish CI/                     # Final MP4 files (Spanish)
+    └── YYYYMMDD_HHMMSS.mp4         # Timestamped output (if Spanish audio exists)
+```
+
+**Note:** Only the final concatenated MP4 files are saved to the `Mandarin CI` and `Spanish CI` folders on your Desktop. Intermediate segments remain in the content folder's `segments/` directory.
 
 ## Technical Details
 
@@ -97,6 +111,11 @@ content_folder/
 - **Audio Codec**: AAC at 192 kbps
 - **Concatenation**: Uses FFmpeg's concat demuxer with stream copy (no re-encoding)
 - **Auto-detection**: Automatically finds the number of segments by scanning audio files
+- **Multi-language Support**: Detects and processes both Mandarin (default) and Spanish (`_es` suffix) audio files
+- **Output Filenames**: Uses timestamp format `YYYYMMDD_HHMMSS.mp4` for unique file naming
+- **Output Locations**: 
+  - Mandarin videos → `~/Desktop/Mandarin CI/` folder
+  - Spanish videos → `~/Desktop/Spanish CI/` folder
 
 ## Examples
 
@@ -143,5 +162,5 @@ cd /path/to/CI_Starter_To_Video
 ./create_video.sh /path/to/content_folder_3
 ```
 
-Each content folder will have its own `segments/` and `output/` directories created automatically.
+Each content folder will have its own `segments/` directory created automatically. All final MP4 files will be saved to the `Mandarin CI/` and `Spanish CI/` folders on your Desktop with timestamped filenames, so multiple runs won't overwrite previous outputs.
 
